@@ -62,6 +62,28 @@ function setCheckbox(entry){
 	}
 }
 
+function waitForP4TreeAndSelectCase(selector, time) {
+        if(document.querySelector(selector)!=null) {
+            //alert("The element is displayed, you can put your code instead of this alert.")
+			//step3: click scope and check test cases
+			var testcase_path = get_testcasePath(default_testcase_path);
+			//console.log(testcase_path);
+			var root_path = "div#p4Tree ul li";
+			for(var path_str in testcase_path){
+				if(testcase_path[path_str].indexOf(".xrt") == -1){
+					findAndExpandNext(root_path,testcase_path[path_str]);
+					root_path += " ul li";
+				}
+			};
+            return;
+        }
+        else {
+            setTimeout(function() {
+                waitForP4TreeAndSelectCase(selector, time);
+            }, time);
+        }
+}
+	
 function set91()
 {
 	//Book this vm
@@ -71,11 +93,20 @@ function set91()
 	setCheckbox("div[title='Win7_NoBaseBuild']");
 	//Machine Group:set owner's vm
 	setCheckbox("div[title= "+ sql_vm + "]");
-	//Click test case
-	$("div.sap-ui-dropdownicon").click();
-	$("div#ddlScope-guilin-dropdownlist li.sap-ui-dropdownlist-item").click();
-	//Click install path
-	$("input#btnInstallPath").click();
+	//Click customize test case window
+	if(!document.getElementById("p4Tree")){
+		$("div.sap-ui-dropdownicon").click();
+		$("div#ddlScope-guilin-dropdownlist li.sap-ui-dropdownlist-item").click();
+	}
+	
+	//Select test cases
+	waitForP4TreeAndSelectCase("a.dynatree-title",100);
+	
+	//Open install build window
+	if(!document.getElementById("installPathFileTree")){
+		//Click install path
+		$("input#btnInstallPath").click();
+	}
 }
 
 function set91hana()
@@ -95,13 +126,20 @@ function set91hana()
 	//$("input#txtBookNo").val('1');
 	//Environment
 	setCheckbox("div[title='Win7_NoBaseBuild']");
-
-	//Click test case
-	$("div.sap-ui-dropdownicon").click();
-	$("div#ddlScope-guilin-dropdownlist li.sap-ui-dropdownlist-item").click();
+	//Click customize test case window
+	if(!document.getElementById("p4Tree")){
+		$("div.sap-ui-dropdownicon").click();
+		$("div#ddlScope-guilin-dropdownlist li.sap-ui-dropdownlist-item").click();
+	}
 	
-	//Click install path
-	$("input#btnInstallPath").click();
+	//Select test cases
+	waitForP4TreeAndSelectCase("a.dynatree-title",100);
+
+	//Open install build window
+	if(!document.getElementById("installPathFileTree")){
+		//Click install path
+		$("input#btnInstallPath").click();
+	}
 }
 
 function set92()
@@ -155,18 +193,6 @@ function autoCheckTestCase(){
 		default:
 			alert("Sorry, current project is not supported now!");
 	}
-	//step3: click scope and check test cases
-	setTimeout(function() {
-		var testcase_path = get_testcasePath(default_testcase_path);
-		console.log(testcase_path);
-		var root_path = "div#p4Tree ul li";
-		for(var path_str in testcase_path){
-               if(testcase_path[path_str].indexOf(".xrt") == -1){
-                   findAndExpandNext(root_path,testcase_path[path_str]);
-                   root_path += " ul li";
-               }
-		};
-	}, 4000);
 }
 
 chrome.runtime.onMessage.addListener(
